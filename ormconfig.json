@@ -1,0 +1,6 @@
+{
+  "type":  "postgres",
+  "entities": ["dist/models/*.js"],
+  "logging": true,
+  "synchronize": true
+}
