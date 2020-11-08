@@ -1,69 +1,72 @@
 import { GraphQLResolveInfo, SelectionNode } from 'graphql';
+import { BaseEntity } from 'typeorm';
+import { Admin } from '../models/Admin';
+import { Organization } from '../models/Organization';
+import { Team } from '../models/Team';
+import { TeamMember } from '../models/TeamMember';
+import { Tournament } from '../models/Tournament';
+import { User } from '../models/User';
 
 type SelectionType = {
   name: string;
   set: SelectionNode[];
 };
 
-type ParseFunc = (args: SelectionType[]) => string[];
+type TMapping<T extends BaseEntity> = { [key in keyof T]?: keyof TMappings };
+export type TMappings = {
+  user: TMapping<User>,
+  admin: TMapping<Admin>,
+  tournament: TMapping<Tournament>,
+  organization: TMapping<Organization>,
+  team: TMapping<Team>,
+  teamMember: TMapping<TeamMember>,
+};
+
+const mappings: TMappings = {
+  user: {
+    memberships: 'teamMember',
+    admin: 'admin',
+  },
+  admin: {
+    organization: 'organization',
+  },
+  tournament: {
+    organization: 'organization',
+    teams: 'team',
+  },
+  organization: {
+    tournaments: 'tournament',
+  },
+  team: {
+    tournaments: 'tournament',
+  },
+  teamMember: {
+    team: 'team',
+  },
+};
 
 const mapSelectionNodesToSelectionTypes = (node: SelectionNode[]) => node
   .map<SelectionType>((obj: any) => ({ name: obj.name.value, set: obj.selectionSet?.selections }));
 
-const tourneyKeyFromUser = 'tournamentHistory';
-const userKey = 'players';
-const orgKey = 'organization';
-const tourneyKeyFromOrg = 'tournaments';
-
-export const parsers = {
-  parseUserRelations: (args: SelectionType[]) => {
-    const tourney = args.find(arg => arg.name === tourneyKeyFromUser);
-    if (tourney) {
-      return [
-        tourneyKeyFromUser,
-        ...parsers.parseTourneyRelations(mapSelectionNodesToSelectionTypes(tourney.set))
-          .map(key => `${tourneyKeyFromUser}.${key}`),
-      ];
-    }
-    return [];
-  },
-  parseTourneyRelations: (args: SelectionType[]) => {
-    const filter = args.filter(({ name }) => name === userKey || name === orgKey);
-    const results: string[] = filter
-      .reduce(
-        (acc, arg) => {
-          if (arg.name === userKey) {
-            return [...acc, ...parsers.parseUserRelations(mapSelectionNodesToSelectionTypes(arg.set)).map(key => `${userKey}.${key}`)];
-          }
-          if (arg.name === orgKey) {
-            return [...acc, ...parsers.parseOrgRelations(mapSelectionNodesToSelectionTypes(arg.set)).map(key => `${orgKey}.${key}`)];
-          }
-          return acc;
-        },
-        [] as string[],
-      );
-    if (filter.length) {
-      return [...filter.map(arg => arg.name), ...results];
-    }
-    return [];
-  },
-  parseOrgRelations: (args: SelectionType[]) => {
-    const tourney = args.find(arg => arg.name === tourneyKeyFromOrg);
-    if (tourney) {
-      return [
-        tourneyKeyFromOrg,
-        ...parsers.parseTourneyRelations(mapSelectionNodesToSelectionTypes(tourney.set))
-          .map(key => `${tourneyKeyFromOrg}.${key}`),
-      ];
-    }
-    return [];
-  },
+type TParse = (args: SelectionType[], mapping: TMapping<any>) => string[];
+const parse: TParse = (args: SelectionType[], mapping: TMapping<any>) => {
+  const keys = Object.keys(mapping);
+  const filter = args.filter(({ name }) => keys.includes(name));
+  const reduced = filter
+    .reduce(
+      (acc, arg) => ([
+        ...acc,
+        ...parse(mapSelectionNodesToSelectionTypes(arg.set), mappings[mapping[arg.name] as keyof TMappings]).map(key => `${arg.name}.${key}`),
+      ]),
+      [] as string[],
+    );
+  return [...filter.map(key => key.name), ...reduced];
 };
 
-export const getRelations = (info: GraphQLResolveInfo, funcName: string, parser: ParseFunc) => {
+export const getRelations = (info: GraphQLResolveInfo, funcName: string, mapping: keyof TMappings) => {
   const selectionSet: SelectionNode[] = (<any>info.operation.selectionSet.selections)
     .find((obj: any) => obj.name.value === funcName).selectionSet.selections;
   const selections = selectionSet
     .map<SelectionType>((obj: any) => ({ name: obj.name.value, set: obj.selectionSet?.selections }));
-  return parser(selections);
+  return parse(selections, mappings[mapping]);
 };

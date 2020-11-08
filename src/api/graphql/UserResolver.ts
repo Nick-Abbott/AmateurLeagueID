@@ -1,12 +1,23 @@
 import { GraphQLResolveInfo } from 'graphql';
 import { Arg, Info, Query, Resolver } from 'type-graphql';
-import { getRelations, parsers } from '../../helpers/ParseRelationsHelper';
 import { User } from '../../models/User';
+import PostgresResolver from './PostgresResolver';
 
 @Resolver(User)
-export class UserResolver {
+export class UserResolver extends PostgresResolver {
+  constructor() {
+    super('user');
+  }
+
   @Query(() => User)
   async user(@Arg('id') id: string, @Info() info: GraphQLResolveInfo) {
-    return User.findOne(id, { relations: getRelations(info, 'user', parsers.parseUserRelations) });
+    try {
+      const user = await User.findOne(id, { relations: this.relations(info, 'user') });
+      console.log(user);
+      return user;
+    } catch (err) {
+      console.error(err);
+      return null;
+    }
   }
 }

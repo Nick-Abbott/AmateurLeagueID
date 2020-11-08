@@ -1,15 +1,19 @@
 import { GraphQLResolveInfo } from 'graphql';
 import { Arg, Info, Mutation, Query, Resolver } from 'type-graphql';
-import { getRelations, parsers } from '../../helpers/ParseRelationsHelper';
 import { Organization } from '../../models/Organization';
+import { Team } from '../../models/Team';
 import { Tournament } from '../../models/Tournament';
-import { User } from '../../models/User';
+import PostgresResolver from './PostgresResolver';
 
 @Resolver(Tournament)
-export class TournamentResolver {
+export class TournamentResolver extends PostgresResolver {
+  constructor() {
+    super('tournament');
+  }
+
   @Query(() => Tournament)
   async tournament(@Arg('id') id: string, @Info() info: GraphQLResolveInfo) {
-    return this.loadTournament(id, info, 'tournament');
+    return Tournament.findOne(id, { relations: this.relations(info, 'tournament') });
   }
 
   @Mutation(() => Tournament)
@@ -21,46 +25,40 @@ export class TournamentResolver {
     const org = Organization.create({ id: orgnizationId });
     const tourney = Tournament.create({ tournamentName: name, organization: org });
     const { id } = await tourney.save();
-    return this.loadTournament(id, info, 'createTournament');
+    return Tournament.findOne(id, { relations: this.relations(info, 'createTournament') });
   }
 
   @Mutation(() => Tournament)
-  async addPlayer(
+  async addTeam(
     @Arg('tournamentId') tourneyId: string,
-    @Arg('playerId') playerId: string,
+    @Arg('teamId') teamId: string,
     @Info() info: GraphQLResolveInfo,
   ) {
-    const tourney = await Tournament.findOne(tourneyId, { relations: ['players'] });
+    const tourney = await Tournament.findOne(tourneyId, { relations: ['teams'] });
     if (tourney) {
-      const user = User.create({ id: playerId });
-      tourney.players.push(user);
+      const team = Team.create({ id: teamId });
+      tourney.teams.push(team);
       await tourney.save();
-      return this.loadTournament(tourneyId, info, 'addPlayer');
+      return Tournament.findOne(tourneyId, { relations: this.relations(info, 'addTeam') });
     }
     throw new Error(`Tournament ${tourneyId} not found`);
   }
 
   @Mutation(() => Tournament)
-  async removePlayer(
+  async removeTeam(
     @Arg('tournamentId') tourneyId: string,
-    @Arg('playerId') playerId: string,
+    @Arg('teamId') teamId: string,
     @Info() info: GraphQLResolveInfo,
   ) {
-    const tourney = await Tournament.findOne(tourneyId, { relations: ['players'] });
+    const tourney = await Tournament.findOne(tourneyId, { relations: ['teams'] });
     if (tourney) {
-      const newPlayers = tourney.players.filter(user => user.id !== playerId);
-      if (newPlayers.length !== tourney.players.length) {
-        tourney.players = newPlayers;
+      const newTeams = tourney.teams.filter(team => team.id !== teamId);
+      if (newTeams.length !== tourney.teams.length) {
+        tourney.teams = newTeams;
         await tourney.save();
-        return tourney.reload();
       }
-      return this.loadTournament(tourneyId, info, 'removePlayer');
+      return Tournament.findOne(tourneyId, { relations: this.relations(info, 'removeTeam') });
     }
     throw new Error(`Tournament ${tourneyId} not found`);
-  }
-
-  private loadTournament(id: string, info: GraphQLResolveInfo, funcName: string) {
-    const relations = getRelations(info, funcName, parsers.parseTourneyRelations);
-    return Tournament.findOne(id, { relations });
   }
 }

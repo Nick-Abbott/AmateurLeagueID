@@ -1,8 +1,8 @@
 /* eslint-disable import/no-cycle */
 import { Field, ID, ObjectType } from 'type-graphql';
-import { BaseEntity, Column, Entity, ManyToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { BaseEntity, Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Admin } from './Admin';
-import { Tournament } from './Tournament';
+import { TeamMember } from './TeamMember';
 
 @ObjectType()
 @Entity()
@@ -18,11 +18,11 @@ export class User extends BaseEntity {
   @Column()
   username: string;
 
-  @Field(() => [Tournament])
-  @ManyToMany(() => Tournament, tourney => tourney.players)
-  tournamentHistory: Tournament[];
+  @Field(() => [TeamMember])
+  @OneToMany(() => TeamMember, team => team.user)
+  memberships: TeamMember[];
 
   @Field(() => Admin, { nullable: true })
-  @OneToOne(() => Admin, admin => admin.user)
+  @OneToOne(() => Admin, admin => admin.user, { nullable: true })
   admin: Admin;
 }

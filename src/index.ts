@@ -15,7 +15,7 @@ const getPostgresConnectionOptions: () => Promise<PostgresConnectionOptions> = a
     port: +(process.env.POSTGRES_PORT || 5432),
     username: process.env.POSTGRES_USERNAME || 'postgres',
     password: process.env.POSTGRES_PASS,
-    database: process.env.POSTGRESS_DATABASE || 'default',
+    database: process.env.POSTGRES_DATABASE || 'default',
   };
 };
 

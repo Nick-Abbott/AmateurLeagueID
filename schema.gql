@@ -8,10 +8,10 @@ type Admin {
 }
 
 type Mutation {
-  addPlayer(playerId: String!, tournamentId: String!): Tournament!
+  addTeam(teamId: String!, tournamentId: String!): Tournament!
   createOrganization(name: String!): Organization!
   createTournament(name: String!, organizationId: String!): Tournament!
-  removePlayer(playerId: String!, tournamentId: String!): Tournament!
+  removeTeam(teamId: String!, tournamentId: String!): Tournament!
 }
 
 type Organization {
@@ -26,16 +26,40 @@ type Query {
   user(id: String!): User!
 }
 
+type Team {
+  id: ID!
+  members: [TeamMember!]!
+  name: String!
+  tournaments: [Tournament!]!
+}
+
+type TeamMember {
+  active: Boolean!
+  role: TeamMemberRole!
+  team: Team!
+  user: User!
+}
+
+enum TeamMemberRole {
+  ASSISTANT_COACH
+  HEAD_COACH
+  PLAYER
+  SUBSTITUTE
+}
+
 type Tournament {
+  active: Boolean!
+  dateEnd: String
+  dateStart: String!
   id: ID!
   organization: Organization!
-  players: [User!]!
+  teams: [Team!]!
   tournamentName: String!
 }
 
 type User {
   admin: Admin
   id: ID!
-  tournamentHistory: [Tournament!]!
+  memberships: [TeamMember!]!
   username: String!
 }
