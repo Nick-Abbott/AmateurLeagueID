@@ -9,15 +9,11 @@ phases:
       - npm run build
 cache:
   paths:
-    - 'node_modules/**/*'
+    - node_modules/**/*
 artifacts:
   files:
-    - '**/*'
-  base-directory: 'dist'
-  secondary-artifacts:
-    node_required:
-      files:
-        - node_modules/**/*
-        - package.json
-        - package-lock.json
-        - ormconfig.json
+    - dist/**/*
+    - node_modules/**/*
+    - package.json
+    - package-lock.json
+    - ormconfig.json

@@ -2,7 +2,7 @@
   "name": "amateurleagueid",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
   "dependencies": {
     "apollo-server-express": "^2.18.2",
     "body-parser": "^1.19.0",
