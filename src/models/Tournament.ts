@@ -29,7 +29,7 @@ export class Tournament extends BaseEntity {
   }
 
   @Field(() => Organization)
-  @ManyToOne(() => Organization, org => org.tournaments)
+  @ManyToOne(() => Organization, org => org.tournaments, { nullable: false })
   organization: Organization;
 
   @Field(() => [Team])

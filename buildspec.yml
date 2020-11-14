@@ -1,0 +1,23 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - npm install
+  build:
+    commands:
+      - npm run build
+cache:
+  paths:
+    - 'node_modules/**/*'
+artifacts:
+  files:
+    - '**/*'
+  base-directory: 'dist'
+  secondary-artifacts:
+    node_required:
+      files:
+        - node_modules/**/*
+        - package.json
+        - package-lock.json
+        - ormconfig.json

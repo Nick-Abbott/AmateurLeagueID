@@ -13,7 +13,7 @@ type TDiscordUserResponse = {
   mfa_enabled: boolean,
 };
 
-type TDiscordProfile = {
+export type TDiscordProfile = {
   accessToken: string,
   id: string,
   username: string,
@@ -59,5 +59,9 @@ export class DiscordOAuth2Strategy extends OAuth2Strategy {
         return resolve(JSON.parse(body as string));
       });
     });
+  }
+
+  public authorizationParams() {
+    return { prompt: 'none' };
   }
 }

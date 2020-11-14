@@ -1,17 +1,16 @@
 /* eslint-disable import/no-cycle */
-import { Field, ID, ObjectType } from 'type-graphql';
+import { Field, ObjectType } from 'type-graphql';
 import { BaseEntity, Column, Entity, ManyToMany, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { SimpleTeam } from '../graphql/types/return/SimpleTeam';
 import { TeamMember } from './TeamMember';
 import { Tournament } from './Tournament';
 
-@ObjectType()
+@ObjectType({ implements: SimpleTeam })
 @Entity()
-export class Team extends BaseEntity {
-  @Field(() => ID)
+export class Team extends BaseEntity implements SimpleTeam {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Field()
   @Column()
   name: string;
 

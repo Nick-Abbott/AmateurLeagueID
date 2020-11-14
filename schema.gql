@@ -12,21 +12,50 @@ type Mutation {
   createOrganization(name: String!): Organization!
   createTournament(name: String!, organizationId: String!): Tournament!
   removeTeam(teamId: String!, tournamentId: String!): Tournament!
+  updateSelf(user: UpdateUserInput!): SimpleUser!
 }
 
-type Organization {
+type Organization implements SimpleOrganization {
   id: ID!
   orgName: String!
   tournaments: [Tournament!]!
 }
 
 type Query {
+  me: User
   organization(id: String!): Organization!
+  searchForUser(params: SearchUserInput!): [SimpleUser!]!
   tournament(id: String!): Tournament!
-  user(id: String!): User!
+  user(discordId: String, id: String): User
 }
 
-type Team {
+input SearchUserInput {
+  """Maximum number of returned results"""
+  limit: Int = 10
+
+  """Offset * limit. Page of your results"""
+  page: Int = 0
+
+  """Partial username to search for"""
+  username: String!
+}
+
+interface SimpleOrganization {
+  id: ID!
+  orgName: String!
+}
+
+interface SimpleTeam {
+  id: ID!
+  name: String!
+}
+
+interface SimpleUser {
+  id: ID!
+  username: String!
+}
+
+type Team implements SimpleTeam {
   id: ID!
   members: [TeamMember!]!
   name: String!
@@ -57,7 +86,11 @@ type Tournament {
   tournamentName: String!
 }
 
-type User {
+input UpdateUserInput {
+  username: String
+}
+
+type User implements SimpleUser {
   admin: Admin
   id: ID!
   memberships: [TeamMember!]!

@@ -7,7 +7,7 @@ import redis from 'redis';
 import RedisStore from 'connect-redis';
 import bodyParser from 'body-parser';
 import passport from 'passport';
-import { GraphQL } from './GraphQL';
+import { GraphQL } from '../graphql/GraphQL';
 
 require('./authentication/PassportAuth');
 
@@ -24,6 +24,7 @@ export default class Restful {
   private server: Server | undefined;
 
   constructor(port = 3000) {
+    this.port = port;
     this.app = express();
     this.app.use(bodyParser.json());
     this.app.use(bodyParser.urlencoded({ extended: true }));
@@ -32,11 +33,14 @@ export default class Restful {
       resave: false,
       cookie: { secure: process.env.NODE_ENV === 'production', httpOnly: true, maxAge: 777600000 /* 9 days */ },
       saveUninitialized: false,
-      store: new (RedisStore(session))({ client: redis.createClient() }),
+      store: new (RedisStore(session))({
+        client: redis.createClient({
+          host: process.env.REDIS_HOST || 'localhost',
+        }),
+      }),
     }));
     this.app.use(passport.initialize());
     this.app.use(passport.session());
-    this.port = port;
   }
 
   private async loadRouters() {
