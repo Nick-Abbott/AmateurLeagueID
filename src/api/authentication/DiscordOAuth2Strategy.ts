@@ -30,7 +30,7 @@ export class DiscordOAuth2Strategy extends OAuth2Strategy {
       clientSecret,
       authorizationURL: `${API_URL}/oauth2/authorize`,
       tokenURL: `${API_URL}/oauth2/token`,
-      callbackURL: 'http://localhost:3000/redirect',
+      callbackURL: `http://${process.env.HOST_URL || 'localhost:3000'}/redirect`,
       scopeSeparator: ' ',
       scope: 'identify',
     }, async (accessToken: string, refreshToken: string, profile: TDiscordUserResponse, cb: VerifyCallback) => {
