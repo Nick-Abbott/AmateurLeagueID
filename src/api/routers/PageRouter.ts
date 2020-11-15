@@ -21,7 +21,7 @@ router.get('/logout', checkAuth, (req, res) => {
 router.get('/',
   checkAuth,
   (req, res) => {
-    res.json(req.user);
+    res.json({ status: 'Logged in', id: (<any>req.user).id });
   });
 
 export default {
