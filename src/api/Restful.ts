@@ -23,7 +23,7 @@ export default class Restful {
   private port: number;
   private server: Server | undefined;
 
-  constructor(port = 3000) {
+  constructor(port = +(process.env.PORT || 3000)) {
     this.port = port;
     this.app = express();
     this.app.use(bodyParser.json());
