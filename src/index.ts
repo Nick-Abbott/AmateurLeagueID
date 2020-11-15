@@ -1,7 +1,6 @@
 /* eslint-disable import/first */
-// eslint-disable-next-line import/newline-after-import
-import { config } from 'dotenv';
-config(); // Set up dotenv config
+require('source-map-support').install();
+require('dotenv').config();
 
 import { createConnection, getConnectionOptions } from 'typeorm';
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';

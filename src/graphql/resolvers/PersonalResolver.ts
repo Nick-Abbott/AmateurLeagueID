@@ -6,8 +6,12 @@ import { UpdateUserInput } from '../types/input/mutateInputs/UpdateUserInput';
 import { SimpleUser } from '../types/return/SimpleUser';
 import PostgresResolver from './PostgresResolver';
 
-@Resolver()
+@Resolver(User)
 export class PersonalResolver extends PostgresResolver {
+  constructor() {
+    super('user');
+  }
+
   @Query(() => User, { nullable: true })
   async me(@Info() info: GraphQLResolveInfo, @Ctx() context: Context) {
     if (!context.user) {
