@@ -1,10 +1,9 @@
-import { Field, ID, InterfaceType } from 'type-graphql';
+import { Field, InterfaceType } from 'type-graphql';
+import { Profile } from '../../../models/Profile';
+import { TeamMutable } from '../rawInterfaces/Mutables';
 
-@InterfaceType()
-export abstract class SimpleTeam {
-  @Field(() => ID)
-  id: string;
-
+@InterfaceType({ implements: Profile })
+export abstract class SimpleTeam extends Profile implements TeamMutable {
   @Field()
-  name: string;
+  teamName: string;
 }

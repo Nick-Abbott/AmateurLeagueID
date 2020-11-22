@@ -1,4 +1,3 @@
-/* eslint-disable import/no-cycle */
 import { Field, ObjectType } from 'type-graphql';
 import { BaseEntity, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Organization } from './Organization';
@@ -15,6 +14,6 @@ export class Admin extends BaseEntity {
   user: User;
 
   @Field(() => Organization)
-  @ManyToOne(() => Organization, org => org.admins)
+  @ManyToOne(() => Organization, org => org.admins, { nullable: true })
   organization: Organization;
 }

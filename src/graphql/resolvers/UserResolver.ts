@@ -1,10 +1,10 @@
 import { GraphQLResolveInfo } from 'graphql';
 import { Arg, Args, Info, Query, Resolver } from 'type-graphql';
-import { SearchUserInput } from '../types/input/SearchUserInput';
-import { UserInput } from '../types/input/UserInput';
+import { UserIdsInput } from '../types/input/UserIdsInput';
 import { SimpleUser } from '../types/return/SimpleUser';
 import { User } from '../../models/User';
 import PostgresResolver from './PostgresResolver';
+import { SearchInput } from '../types/input/SearchInput';
 
 @Resolver(User)
 export class UserResolver extends PostgresResolver {
@@ -12,8 +12,8 @@ export class UserResolver extends PostgresResolver {
     super('user');
   }
 
-  @Query(() => User, { nullable: true })
-  async user(@Args() user: UserInput, @Info() info: GraphQLResolveInfo) {
+  @Query(() => User)
+  async user(@Args() user: UserIdsInput, @Info() info: GraphQLResolveInfo) {
     try {
       const args: Partial<{ id: string, discordId: string }> = {};
       if (user.id) args.id = user.id;
@@ -31,12 +31,12 @@ export class UserResolver extends PostgresResolver {
   }
 
   @Query(() => [SimpleUser])
-  async searchForUser(@Arg('params') params: SearchUserInput) {
+  async searchForUser(@Arg('params') params: SearchInput) {
     const users = await User.createQueryBuilder('user')
       .where('user.username ILIKE :username')
       .offset(params.page * params.limit)
       .limit(params.limit)
-      .setParameter('username', `%${params.username}%`)
+      .setParameter('username', `%${params.name}%`)
       .getMany();
     return users;
   }

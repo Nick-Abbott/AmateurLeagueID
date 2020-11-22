@@ -1,10 +1,9 @@
-import { Field, ID, InterfaceType } from 'type-graphql';
+import { Field, InterfaceType } from 'type-graphql';
+import { Profile } from '../../../models/Profile';
+import { OrgMutable } from '../rawInterfaces/Mutables';
 
-@InterfaceType()
-export abstract class SimpleOrganization {
-  @Field(() => ID)
-  id: string;
-
+@InterfaceType({ implements: Profile })
+export abstract class SimpleOrganization extends Profile implements OrgMutable {
   @Field()
   orgName: string;
 }

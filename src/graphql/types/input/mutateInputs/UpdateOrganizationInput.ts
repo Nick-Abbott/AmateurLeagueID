@@ -1,10 +1,10 @@
 import { Field, InputType } from 'type-graphql';
-import { UserMutable } from '../../rawInterfaces/Mutables';
+import { OrgMutable } from '../../rawInterfaces/Mutables';
 
 @InputType()
-export class UpdateUserInput implements UserMutable {
+export class UpdateOrganizationInput implements OrgMutable {
   @Field({ nullable: true })
-  username: string;
+  orgName: string;
 
   @Field({ nullable: true })
   description: string;

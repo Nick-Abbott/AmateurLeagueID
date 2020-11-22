@@ -29,6 +29,7 @@ const mappings: TMappings = {
   },
   admin: {
     organization: 'organization',
+    user: 'user',
   },
   tournament: {
     organization: 'organization',
@@ -36,12 +37,17 @@ const mappings: TMappings = {
   },
   organization: {
     tournaments: 'tournament',
+    teams: 'team',
+    admins: 'admin',
   },
   team: {
     tournaments: 'tournament',
+    organization: 'organization',
+    members: 'teamMember',
   },
   teamMember: {
     team: 'team',
+    user: 'user',
   },
 };
 

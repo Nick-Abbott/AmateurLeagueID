@@ -7,58 +7,85 @@ type Admin {
   organization: Organization!
 }
 
+"""
+A date string, such as 2007-12-03, compliant with the `full-date` format outlined in section 5.6 of the RFC 3339 profile of the ISO 8601 standard for representation of dates and times using the Gregorian calendar.
+"""
+scalar Date
+
 type Mutation {
   addTeam(teamId: String!, tournamentId: String!): Tournament!
   createOrganization(name: String!): Organization!
-  createTournament(name: String!, organizationId: String!): Tournament!
+  createTournament(endDate: Date, name: String!, orgnizationId: String!, startDate: Date!): Tournament!
+  deleteOrganization(id: String!): Boolean!
   removeTeam(teamId: String!, tournamentId: String!): Tournament!
+  removeTournament(id: String!): Boolean!
+  updateOrganization(id: String!, params: UpdateOrganizationInput!): SimpleOrganization!
   updateSelf(user: UpdateUserInput!): SimpleUser!
+  updateTournament(id: String!, params: UpdateTournamentInput!): SimpleTournament!
 }
 
-type Organization implements SimpleOrganization {
+type Organization implements Profile & SimpleOrganization {
+  description: String
   id: ID!
   orgName: String!
+  teams: [Team!]!
   tournaments: [Tournament!]!
+}
+
+interface Profile {
+  description: String
+  id: ID!
 }
 
 type Query {
   me: User
   organization(id: String!): Organization!
-  searchForUser(params: SearchUserInput!): [SimpleUser!]!
+  searchForUser(params: SearchInput!): [SimpleUser!]!
   tournament(id: String!): Tournament!
-  user(discordId: String, id: String): User
+  user(discordId: String, id: String): User!
 }
 
-input SearchUserInput {
+input SearchInput {
   """Maximum number of returned results"""
   limit: Int = 10
 
+  """Partial name to search for"""
+  name: String!
+
   """Offset * limit. Page of your results"""
   page: Int = 0
-
-  """Partial username to search for"""
-  username: String!
 }
 
-interface SimpleOrganization {
+interface SimpleOrganization implements Profile {
+  description: String
   id: ID!
   orgName: String!
 }
 
-interface SimpleTeam {
+interface SimpleTeam implements Profile {
+  description: String
   id: ID!
-  name: String!
+  teamName: String!
 }
 
-interface SimpleUser {
+interface SimpleTournament implements Profile {
+  description: String
+  id: ID!
+  tournamentName: String!
+}
+
+interface SimpleUser implements Profile {
+  description: String
   id: ID!
   username: String!
 }
 
-type Team implements SimpleTeam {
+type Team implements Profile & SimpleTeam {
+  description: String
   id: ID!
   members: [TeamMember!]!
-  name: String!
+  organization: Organization
+  teamName: String!
   tournaments: [Tournament!]!
 }
 
@@ -76,22 +103,35 @@ enum TeamMemberRole {
   SUBSTITUTE
 }
 
-type Tournament {
+type Tournament implements Profile & SimpleTournament {
   active: Boolean!
-  dateEnd: String
-  dateStart: String!
+  dateEnd: Date
+  dateStart: Date!
+  description: String
   id: ID!
   organization: Organization!
   teams: [Team!]!
   tournamentName: String!
 }
 
+input UpdateOrganizationInput {
+  description: String
+  orgName: String
+}
+
+input UpdateTournamentInput {
+  description: String
+  tournamentName: String
+}
+
 input UpdateUserInput {
+  description: String
   username: String
 }
 
-type User implements SimpleUser {
+type User implements Profile & SimpleUser {
   admin: Admin
+  description: String
   id: ID!
   memberships: [TeamMember!]!
   username: String!

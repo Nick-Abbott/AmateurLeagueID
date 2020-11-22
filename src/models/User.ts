@@ -1,16 +1,13 @@
-/* eslint-disable import/no-cycle */
 import { Field, ObjectType } from 'type-graphql';
-import { BaseEntity, Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, OneToOne } from 'typeorm';
 import { SimpleUser } from '../graphql/types/return/SimpleUser';
 import { Admin } from './Admin';
+import { Profile } from './Profile';
 import { TeamMember } from './TeamMember';
 
-@ObjectType({ implements: [SimpleUser] })
+@ObjectType({ implements: [SimpleUser, Profile] })
 @Entity()
-export class User extends BaseEntity implements SimpleUser {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
+export class User extends Profile implements SimpleUser {
   @Column({ unique: true })
   discordId: string;
 
@@ -18,10 +15,10 @@ export class User extends BaseEntity implements SimpleUser {
   username: string;
 
   @Field(() => [TeamMember])
-  @OneToMany(() => TeamMember, team => team.user)
+  @OneToMany(() => TeamMember, team => team.user, { onDelete: 'CASCADE' })
   memberships: TeamMember[];
 
   @Field(() => Admin, { nullable: true })
-  @OneToOne(() => Admin, admin => admin.user, { nullable: true })
+  @OneToOne(() => Admin, admin => admin.user, { nullable: true, onDelete: 'CASCADE' })
   admin: Admin;
 }

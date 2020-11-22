@@ -2,9 +2,9 @@ import { Min } from 'class-validator';
 import { Field, InputType, Int } from 'type-graphql';
 
 @InputType()
-export class SearchUserInput {
-  @Field({ description: 'Partial username to search for' })
-  username: string;
+export class SearchInput {
+  @Field({ description: 'Partial name to search for' })
+  name: string;
 
   @Field(() => Int, { defaultValue: 10, description: 'Maximum number of returned results' })
   @Min(1)

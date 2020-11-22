@@ -25,6 +25,7 @@
     "object-curly-newline": 0,
     "import/prefer-default-export": 0,
     "arrow-parens": [2, "as-needed", { "requireForBlockBody": true }],
-    "@typescript-eslint/indent": 0
+    "@typescript-eslint/indent": 0,
+    "import/no-cycle": 0
   }
 }

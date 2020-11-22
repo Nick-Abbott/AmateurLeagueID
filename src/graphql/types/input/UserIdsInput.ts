@@ -2,7 +2,7 @@ import { IsNumberString, IsUUID, Length } from 'class-validator';
 import { ArgsType, Field } from 'type-graphql';
 
 @ArgsType()
-export class UserInput {
+export class UserIdsInput {
   @Field({ nullable: true })
   @IsUUID('4')
   id: string;

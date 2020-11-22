@@ -1,4 +1,3 @@
-/* eslint-disable import/no-cycle */
 import { Field, ObjectType, registerEnumType } from 'type-graphql';
 import { BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Team } from './Team';
