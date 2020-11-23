@@ -2,7 +2,6 @@ import { GraphQLResolveInfo } from 'graphql';
 import { Arg, Info, Mutation, Query, Resolver } from 'type-graphql';
 import { Organization } from '../../models/Organization';
 import { UpdateOrganizationInput } from '../types/input/mutateInputs/UpdateOrganizationInput';
-import { SimpleOrganization } from '../types/return/SimpleOrganization';
 import PostgresResolver from './PostgresResolver';
 
 @Resolver(Organization)
@@ -33,11 +32,15 @@ export class OrganizationResolver extends PostgresResolver {
     return true;
   }
 
-  @Mutation(() => SimpleOrganization)
-  async updateOrganization(@Arg('id') id: string, @Arg('params') params: UpdateOrganizationInput) {
+  @Mutation(() => Organization)
+  async updateOrganization(
+    @Arg('id') id: string,
+    @Arg('params') params: UpdateOrganizationInput,
+    @Info() info: GraphQLResolveInfo,
+  ) {
     const org = await Organization.findOne(id);
     if (!org) throw new Error('Organization not found');
-    const newOrg = Organization.create({ id: org.id, ...params });
-    return newOrg.save();
+    await Organization.create({ id: org.id, ...params }).save();
+    return Organization.findOne(id, { relations: this.relations(info, 'updateOrganization') });
   }
 }

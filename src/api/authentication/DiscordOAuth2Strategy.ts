@@ -1,3 +1,4 @@
+/* eslint-disable no-underscore-dangle */
 import OAuth2Strategy, { InternalOAuthError, VerifyCallback } from 'passport-oauth2';
 import { User } from '../../models/User';
 

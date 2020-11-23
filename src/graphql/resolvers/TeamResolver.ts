@@ -51,12 +51,12 @@ export class TeamResolver extends PostgresResolver {
     return true;
   }
 
-  @Mutation(() => SimpleTeam)
-  async updateTeam(@Arg('id') id: string, @Arg('params') params: UpdateTeamInput) {
+  @Mutation(() => Team)
+  async updateTeam(@Arg('id') id: string, @Arg('params') params: UpdateTeamInput, @Info() info: GraphQLResolveInfo) {
     const team = await Team.findOne(id);
     if (!team) throw new Error('Team not found');
-    const newTeam = Team.create({ id: team.id, ...params });
-    return newTeam.save();
+    await Team.create({ id: team.id, ...params }).save();
+    return Team.findOne(id, { relations: this.relations(info, 'updateTeam') });
   }
 
   @Mutation(() => Team)

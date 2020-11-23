@@ -6,7 +6,6 @@ import { Tournament } from '../../models/Tournament';
 import PostgresResolver from './PostgresResolver';
 import { CreateTournamentArgs } from '../types/create/CreateTournamentArgs';
 import { UpdateTournamentInput } from '../types/input/mutateInputs/UpdateTournamentInput';
-import { SimpleTournament } from '../types/return/SimpleTournament';
 
 @Resolver(Tournament)
 export class TournamentResolver extends PostgresResolver {
@@ -43,12 +42,16 @@ export class TournamentResolver extends PostgresResolver {
     return true;
   }
 
-  @Mutation(() => SimpleTournament)
-  async updateTournament(@Arg('id') id: string, @Arg('params') params: UpdateTournamentInput) {
+  @Mutation(() => Tournament)
+  async updateTournament(
+    @Arg('id') id: string,
+    @Arg('params') params: UpdateTournamentInput,
+    @Info() info: GraphQLResolveInfo,
+  ) {
     const tourney = await Tournament.findOne(id);
     if (!tourney) throw new Error('Tournament not found');
-    const newTourney = Tournament.create({ id: tourney.id, ...params });
-    return newTourney.save();
+    await Tournament.create({ id: tourney.id, ...params }).save();
+    return Tournament.findOne(id, { relations: this.relations(info, 'updateTournament') });
   }
 
   @Mutation(() => Tournament)

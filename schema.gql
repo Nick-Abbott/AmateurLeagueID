@@ -19,9 +19,9 @@ type Mutation {
   deleteOrganization(id: String!): Boolean!
   removeTeam(teamId: String!, tournamentId: String!): Tournament!
   removeTournament(id: String!): Boolean!
-  updateOrganization(id: String!, params: UpdateOrganizationInput!): SimpleOrganization!
-  updateSelf(user: UpdateUserInput!): SimpleUser!
-  updateTournament(id: String!, params: UpdateTournamentInput!): SimpleTournament!
+  updateOrganization(id: String!, params: UpdateOrganizationInput!): Organization!
+  updateSelf(user: UpdateUserInput!): User!
+  updateTournament(id: String!, params: UpdateTournamentInput!): Tournament!
 }
 
 type Organization implements Profile & SimpleOrganization {
