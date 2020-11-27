@@ -32,12 +32,10 @@ export class UserResolver extends PostgresResolver {
 
   @Query(() => [SimpleUser])
   async searchForUser(@Arg('params') params: SearchInput) {
-    const users = await User.createQueryBuilder('user')
-      .where('user.username ILIKE :username')
-      .offset(params.page * params.limit)
-      .limit(params.limit)
-      .setParameter('username', `%${params.name}%`)
+    return User.createQueryBuilder('user')
+      .where('user.username ILIKE :username', { username: `%${params.name}%` })
+      .skip(params.page * params.limit)
+      .take(params.limit)
       .getMany();
-    return users;
   }
 }

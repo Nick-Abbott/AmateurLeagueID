@@ -6,6 +6,9 @@ import { Tournament } from '../../models/Tournament';
 import PostgresResolver from './PostgresResolver';
 import { CreateTournamentArgs } from '../types/create/CreateTournamentArgs';
 import { UpdateTournamentInput } from '../types/input/mutateInputs/UpdateTournamentInput';
+import { SearchInput } from '../types/input/SearchInput';
+import { TournamentSearchFilters } from '../types/input/TournamentSearchFilters';
+import { SimpleTournament } from '../types/return/SimpleTournament';
 
 @Resolver(Tournament)
 export class TournamentResolver extends PostgresResolver {
@@ -16,6 +19,21 @@ export class TournamentResolver extends PostgresResolver {
   @Query(() => Tournament)
   async tournament(@Arg('id') id: string, @Info() info: GraphQLResolveInfo) {
     return Tournament.findOne(id, { relations: this.relations(info, 'tournament') });
+  }
+
+  @Query(() => [SimpleTournament])
+  async searchForTournament(
+    @Arg('params') params: SearchInput,
+    @Arg('filters') filters: TournamentSearchFilters,
+  ) {
+    const queryBuilder = Tournament.createQueryBuilder('tourney')
+      .where('tourney.tournamentName ILIKE :tourneyName', { tourneyName: `%${params.name}%` })
+      .skip(params.page * params.limit)
+      .take(params.limit);
+    if (!filters.history) queryBuilder.andWhere('tourney.dateEnd > CURRENT_DATE');
+    if (!filters.active) queryBuilder.andWhere('(tourney.dateStart < CURRENT_DATE OR tourney.dateEnd > CURRENT_DATE)');
+    if (!filters.upcoming) queryBuilder.andWhere('tourney.dateStart > CURRENT_DATE');
+    return queryBuilder.getMany();
   }
 
   @Mutation(() => Tournament)

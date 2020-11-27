@@ -40,6 +40,8 @@ interface Profile {
 type Query {
   me: User
   organization(id: String!): Organization!
+  searchForOrganization(params: SearchInput!): [SimpleOrganization!]!
+  searchForTournament(filters: TournamentSearchFilters!, params: SearchInput!): [SimpleTournament!]!
   searchForUser(params: SearchInput!): [SimpleUser!]!
   tournament(id: String!): Tournament!
   user(discordId: String, id: String): User!
@@ -69,6 +71,9 @@ interface SimpleTeam implements Profile {
 }
 
 interface SimpleTournament implements Profile {
+  active: Boolean!
+  dateEnd: Date
+  dateStart: Date!
   description: String
   id: ID!
   tournamentName: String!
@@ -112,6 +117,12 @@ type Tournament implements Profile & SimpleTournament {
   organization: Organization!
   teams: [Team!]!
   tournamentName: String!
+}
+
+input TournamentSearchFilters {
+  active: Boolean = true
+  history: Boolean = false
+  upcoming: Boolean = true
 }
 
 input UpdateOrganizationInput {

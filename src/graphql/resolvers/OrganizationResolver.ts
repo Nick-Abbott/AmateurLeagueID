@@ -2,6 +2,8 @@ import { GraphQLResolveInfo } from 'graphql';
 import { Arg, Info, Mutation, Query, Resolver } from 'type-graphql';
 import { Organization } from '../../models/Organization';
 import { UpdateOrganizationInput } from '../types/input/mutateInputs/UpdateOrganizationInput';
+import { SearchInput } from '../types/input/SearchInput';
+import { SimpleOrganization } from '../types/return/SimpleOrganization';
 import PostgresResolver from './PostgresResolver';
 
 @Resolver(Organization)
@@ -13,6 +15,15 @@ export class OrganizationResolver extends PostgresResolver {
   @Query(() => Organization)
   async organization(@Arg('id') id: string, @Info() info: GraphQLResolveInfo) {
     return Organization.findOne(id, { relations: this.relations(info, 'organization') });
+  }
+
+  @Query(() => [SimpleOrganization])
+  async searchForOrganization(@Arg('params') params: SearchInput) {
+    return Organization.createQueryBuilder('org')
+      .where('org.orgName ILIKE :orgName', { orgName: `%${params.name}%` })
+      .skip(params.page * params.limit)
+      .take(params.limit)
+      .getMany();
   }
 
   @Mutation(() => Organization)

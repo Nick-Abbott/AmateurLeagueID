@@ -18,6 +18,8 @@ export interface OrgMutable {
 export interface TournamentMutable {
   tournamentName: string;
   description: string;
+  dateStart: string;
+  dateEnd: string;
 }
 
 export interface TeamMemberMutable {
